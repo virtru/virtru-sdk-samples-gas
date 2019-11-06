@@ -1,0 +1,429 @@
+<script type="text/javascript">
+   /*
+    * Click handlers for all buttons.
+    */
+         $(function() {
+           $('#encrypt-text').click(hideButtons)
+             .click(showDownloadButton)
+             .click(showAuthUsers)
+             .click(showBackButton);
+         }); 
+         $(function() {
+           $('#encrypt-email').click(hideButtons)
+             .click(showEmailCompose)
+             .click(showAuthUsers)
+             .click(showBackButton);
+         });
+         $(function() {
+           $('#send-email').click(encryptEmail);
+         });
+         $(function() {
+           $('#do-download').click(encryptText);
+         });
+         $(function() {
+           $('#go-back').click(goBack);
+         });
+         
+         // Reveals Expiration options when Expiration toggled on.  
+         $(function () {
+           $("#expiration-toggle").click(function () {
+               if ($(this).is(":checked")) {
+                   $("#expiration-windows-container").show();
+               } else {
+                   $("#expiration-windows-container").hide();
+                   $('#one-month-expire').prop('checked', true);
+               }
+           });
+         });
+            
+   /*      
+    * Hide and reveal functions for buttons
+    * and user input fields.  
+    */      
+         function hideButtons() {
+           $("#encrypt-email").hide();
+           $("#encrypt-text").hide();
+         } 
+         function showButtons() {
+           $("#encrypt-email").show();
+           $("#encrypt-text").show();
+         }
+         function hideDocOptions() {
+           $("#virtru-doc-options").hide();
+         }
+         function showDocOptions() {
+           $("#virtru-doc-options").show();
+         }
+         function showEmailCompose() {
+           $("#email-body-compose").show();
+         }
+         function hideEmailCompose() {
+           $("#email-body-compose").hide();
+         }
+         function showAuthUsers() {
+           $("#add-auth-users").show();
+         }
+         function hideAuthUsers() {
+           $("#add-auth-users").hide();
+         }
+         function showDownloadButton() {
+           $("#download-button").show();
+         }
+         function hideDownloadButton() {
+           $("#download-button").hide();
+         }
+         function showBackButton() {
+           $("#go-back").show();
+         }
+         function hideBackButton() {
+           $("#go-back").hide();
+         }
+         function addFillEmail() {
+           $('.virtru-auth-instruction-sub').append('<br /><button class="virtru-auth-button virtru-auth-button-virtru" id=insert-email" style="width:100%;height:30px; margin:0px;text-align:center;padding-top:6px">Use trevor@foskett.co</button>' );
+             }
+         function addSpinner() {
+           $('.virtru-auth-authenticated').append('<div id="spinner" class="virtru-auth-loader"></div>');
+         }
+         function addDashLink() {
+           $('.virtru-auth-authenticated').append('<a class="virtru-auth-tos" id="dashboard-link" href="https://secure.virtru.com/dashboard" target="_blank" style="font-size:.8em;text-align:center">Manage Access Controls</a>');
+         }
+         function removeSpinner() {
+           $('#spinner').remove();
+         }
+         function removeDashLink() {
+           $('#dashboard-link').remove();
+         }
+         function showExpirationOptions() {
+           $('#expiration-windows-container').show();
+         }
+         function hideExpirationOptions() {
+           $('#expiration-windows-container').hide();
+         }    
+         function resetAll() {
+           $("#auth-users").val('');
+           $("#email-body").val('');
+           $('#watermark-toggle').prop('checked', false);
+           $('#disable-reshare-toggle').prop('checked', false);
+           $('#expiration-toggle').prop('checked', false);
+           $("#expiration-windows-container").hide();
+           $('#one-month-expire').prop('checked', true);
+         }
+         function goBack() {
+           hideAuthUsers();
+           hideEmailCompose();
+           hideDownloadButton();
+           showButtons();
+           hideBackButton();
+           resetAll();
+         }
+   
+   /*
+    * Runs server-side function to get the title
+    * of the Google Doc & return the value.
+    *
+    * @return {string} The document's title.
+    */    
+         function getTitle () {
+           return new Promise(function(resolve, reject) {
+             google.script.run
+               .withSuccessHandler(function(docTitle) {
+                 resolve(docTitle);
+               })
+               .getFileName();
+           });      
+         }
+           
+   /*      
+    * Runs server-side function to return the contents
+    * of the document in base64 format.
+    *
+    * @return {string} Base 64'd document content.
+    */    
+         function genPDF() {
+           return new Promise(function(resolve, reject) {
+             google.script.run
+               .withSuccessHandler(function(blobB64) {
+                 resolve(blobB64);
+               })
+               .createPDF();
+           });
+         }
+   
+   /*      
+    * Removes the auth widget.  Called below
+    * after successful auth.
+    */     
+         function removeAuth() {
+           var elmnt = document.getElementsByClassName('virtru-auth');        
+           elmnt[0].remove();
+         }
+   
+   /*      
+    * Adds a user-facing status update.
+    *
+    * @param {string} message The message to display as current status.
+    */     
+         function showProcessing(message) {
+           var status = document.getElementsByClassName('virtru-auth-instruction')[0];
+           status.innerHTML = message;
+         }
+   
+   /*      
+    * Removes the status update so that
+    * a new status can be added.
+    */    
+         function removeProcessing(){
+           var elmnt = document.getElementById('processing-message');
+           elmnt.remove();
+         }
+   
+   /*
+    * Shows a success message beginning with
+    * "Success!" & removes after 10 seconds.
+    * 
+    * @param {string} message The message to show along with "Success!".
+    */    
+         function showSuccess(message) {
+           removeSpinner();
+           var status = document.getElementsByClassName('virtru-auth-instruction')[0];
+           status.innerHTML = `Success! ${message}`;
+           $("#dashboard-link").show(); 
+           setTimeout(function(){
+             removeAuth();
+             showButtons();
+             hideBackButton();
+             showDocOptions();
+             resetAll();
+             removeDashLink();
+           }, 10000);
+         }
+               
+   /*     
+    * Handles client-side conversion of document 
+    * data from server to a format we can use for encryption.
+    * Called in both download & email workflows.  
+    *
+    * @return {arrayBuffer} Array Buffer of the document content.
+    */    
+         async function convertPDFData() {
+           
+           // Gets document content & title; converts
+           // document content back into a usable
+           // PDF-type blob.
+           var blobB64 = await genPDF();
+           var binary = atob(blobB64.replace(/\s/g, ''));
+           var len = binary.length;
+           var buffer = new ArrayBuffer(len);
+           var view = new Uint8Array(buffer);
+           for (var i =0; i < len; i++) {
+               view[i] = binary.charCodeAt(i);
+           }
+           var blob = new Blob([view], {type: "application/pdf"});
+           
+           // Generates an array buffer from the blob.
+           // Will be used as source data for encryption.
+           var arrayBuffer = null;
+           arrayBuffer = await new Response(blob).arrayBuffer();
+           return arrayBuffer;
+         }
+   
+   /*
+    * Builds policy according to user inputs. 
+    *
+    * @param {Array}   authUsers  The list of authorized users for this piece of content.
+    * @return {Policy}            The policy for this piece of content.
+    */    
+         function buildPolicy() {
+           var policy = new Virtru.PolicyBuilder();
+   
+           if ($('#watermark-toggle').is(":checked")) {
+             policy.enableWatermarking();
+           } 
+           if ($('#disable-reshare-toggle').is(":checked")) {
+             policy.disableReshare();    
+           } 
+           if ($('#expiration-toggle').is(":checked")) {
+             if ($('#one-hour-expire').is(":checked")) {
+               var expTime = (1000*60*60);
+               console.log(expTime);
+             }
+             if ($('#one-day-expire').is(":checked")) {
+               var expTime = (1000*60*60*24);
+               console.log(expTime);
+             }
+             if ($('#one-week-expire').is(":checked")) {
+               var expTime = (1000*60*60*24*7);
+               console.log(expTime);
+             }
+             if ($('#one-month-expire').is(":checked")) {
+               var expTime = (1000*60*60*24*7*4);
+               console.log(expTime);
+             }
+             policy.enableExpirationDeadlineFromNow([expTime]);
+           } 
+           return policy.build();
+         }
+         
+   /*
+    * Main function for the Encrypt & Download option.
+    *
+    * @param {string} email The email address used for Authentication.
+    */    
+         async function encryptAndDownload(email) {
+                   
+           // Remove auth widget and update status.
+           //removeAuth();
+           showProcessing("Preparing Data...");
+           addSpinner();
+           
+           // Get document content as array buffer and
+           // title.
+           var arrayBuffer = await convertPDFData();
+           var docTitle = await getTitle();
+           
+           // Update status.  
+           showProcessing("Building Policy...");
+           
+           // Generate list of authorized users based
+           // on the user's input.  If no users specified,
+           // include only the policy owner.
+           var policyOwner = [email];
+           var authorizedUsers = [];
+           if ($('#auth-users').val() != "" ) {
+             var usersInput = $('#auth-users').val();
+             usersInput = usersInput.replace(/\s/g, '');      
+             usersInput = usersInput.split(",");
+             authorizedUsers = policyOwner.concat(usersInput);
+           } else {
+             authorizedUsers = policyOwner;
+           }
+           var policy = buildPolicy();  
+           
+           // Update status.
+           showProcessing("Encrypting...");
+           
+           // Create Virtru client and supply encryption
+           // parameters.  
+           const client = new Virtru.Client({email});
+           const encryptParams = new Virtru.EncryptParamsBuilder()
+             .withArrayBufferSource(arrayBuffer)
+             .withDisplayFilename(`${docTitle}.pdf`)
+             .withPolicy(policy)
+             .withUsersWithAccess(authorizedUsers)
+             .build();
+           
+           // Run the encryption process and generate the
+           // pdf.tdf3.html file with the original
+           // document's title.
+           const ct = await client.encrypt(encryptParams);
+           await ct.toFile(`${docTitle}.pdf.tdf3.html`);
+           
+           // Update status and show success message.
+           showSuccess("Download complete.");
+         }
+         
+         
+   /*
+    * Main function for the Encrypt & Email option.
+    *
+    * @param {string} email The email address used for Authentication.
+    */
+         async function encryptAndEmail(email) {
+           
+           // Remove auth widget and update status.
+           showProcessing("Preparing Data...");
+           addSpinner();
+           
+           // Get document content as array buffer and
+           // title.
+           var arrayBuffer = await convertPDFData();
+           var docTitle = await getTitle();
+           
+           // Update status.
+           showProcessing("Building Policy...");
+           
+           // Generate list of authorized users based
+           // on the user's input.  If no users specified,
+           // include only the policy owner.  If users
+           // are added, don't include the policy owner
+           // in the list to avoid sending email to 
+           // the policy owner.
+           
+           var policyOwner = [email];
+           var authorizedUsers = [];
+           if ($('#auth-users').val() != "" ) {
+             var usersInput = $('#auth-users').val();
+             usersInput = usersInput.replace(/\s/g, '');      
+             usersInput = usersInput.split(",");
+             authorizedUsers = usersInput;
+           } else {
+             authorizedUsers = policyOwner;
+           }
+           var policy = buildPolicy(); 
+           
+           
+           // Update status.
+           showProcessing("Encrypting...");
+           
+           // Create Virtru client and supply encryption
+           // parameters.
+           const client = new Virtru.Client({email});
+           const encryptParams = new Virtru.EncryptParamsBuilder()
+             .withArrayBufferSource(arrayBuffer)
+             .withDisplayFilename(`${docTitle}.pdf`)
+             .withPolicy(policy)
+             .withUsersWithAccess(authorizedUsers)
+             .build();
+           const ct = await client.encrypt(encryptParams);
+           var ctString = await ct.toString();
+          
+           // Run server-side function to generate an email
+           // to the list of authorized users and include
+           // the HTML generated above as an attachment. 
+           var userMessage = $('#email-body').val().replace(/\n/g, '<br/>');
+           google.script.run.sendEmail(ctString, authorizedUsers, userMessage);
+           
+           // Update status and show success message.
+           showSuccess("Email sent.");
+           
+         }
+         
+   /*    
+    * Load the auth widget after user clicks 
+    * "Encrypt & Download".  Calls the 
+    * encryptAndDownload() function after 
+    * successful auth.
+    */    
+         function encryptText() {
+           /*
+           console.log(Virtru.Auth.isLoggedIn('trevor@foskett.co'));
+           const auths = JSON.parse(localStorage.getItem('virtru-client-auth')) || null;
+           const activeAuth = auths && Object.values(auths)[0];
+           const appId = activeAuth && activeAuth.split(':')[1];
+           console.log(appId);
+           */
+           hideDocOptions();
+           hideAuthUsers();
+           hideDownloadButton();
+           Virtru.AuthWidget('virtru-auth-widget-mount', {
+             afterAuth: encryptAndDownload
+           });  
+         }
+   
+   /*
+    * Load the auth widget after user clicks 
+    * "Encrypt & Email".  Call the 
+    * encryptAndEmail() function after
+    * successful auth.
+    */    
+         function encryptEmail() {
+           hideDocOptions();
+           hideEmailCompose();
+           hideAuthUsers();
+           Virtru.AuthWidget('virtru-auth-widget-mount', {
+             afterAuth: encryptAndEmail
+           });
+         }
+         
+       
+</script>
