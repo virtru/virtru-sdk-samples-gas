@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <?!= include('Stylesheet'); ?>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://sdk.virtru.com/js/latest/auth-widget/index.js"></script>
+    <script src="https://sdk.virtru.com/js/latest/virtru-sdk.min.js"></script> 
+  </head>
+  <body>
+    <!--Div for Virtru Auth Widget.-->
+    <div id="virtru-auth-widget-mount">
+      <div class="virtru-doc-options" id="virtru-doc-options">
+        <div class="virtru-auth-header">
+          <a id="go-back" class="virtru-auth-header-back" style="display:none">&lt; <small>Back</small></a>
+        </div>
+        <div class="virtru-auth-content">
+          <div class="virtru-auth-enter-email" style="margin:auto">
+            <!--Button to begin encrypt & download function-->
+            <div  >
+              <button class="virtru-auth-button virtru-auth-button-virtru" id="encrypt-text" style="width:100%; text-align:center; margin-left:auto; margin-right:auto">Encrypt and Download</button> <!-- id="button-bar" class="block" -->
+            </div>
+            
+            <!--Button to begin encrypt & email function-->
+            <div  >
+              <button class="virtru-auth-button virtru-auth-button-virtru" id="encrypt-email" style="width:100%; text-align:center; margin:0">Encrypt and Email</button> <!-- id="button-bar" class="block" -->
+            </div>
+            <!--Label & input box for authorized users.  Hidden by default.-->
+            <div class="block form-group" id="add-auth-users" style="display:none">
+              <label for="auth-users" style="font-family:raleway; text-align:center" >
+                <div class="virtru-auth-instruction-sub">
+                  <strong>Authorized Users</strong><br/>
+                  <div style="font-size:75%">(comma-separated)</div>
+                </div>
+              </label>
+              <textarea id="auth-users" rows="2" style="width:96%;text-align:left;font-size:85%;margin-top:5px" placeholder="User 1, User 2, User 3..."class="virtru-auth-input virtru-auth-input-email"></textarea>
+              <br/>
+              <!--Security feature toggles-->
+              <div id="security-toggles" class="security-toggles" >
+                <div id="expiration"style="align-items:center;display:flex;justify-content:space-between">
+                  <span>Expiration</span>
+                  <label class="switch">
+                  <input type="checkbox" id="expiration-toggle">
+                  <span class="slider round"></span>
+                  </label>
+                </div>
+                <!--Options for expiration timeframs.  Hidden until expiration enabled.-->
+                <div id="expiration-windows-container" style="display:none">
+                  <br/>
+                  <div id="one-hour"class="expiration-choices"style="align-items:center;display:flex;justify-content:space-between">
+                    <label class="container">
+                    <input type="radio"  name="radio" id="one-hour-expire">
+                    <span class="checkmark"></span>
+                    </label>
+                    <div></div>
+                    <span style="text-align:left;width:170px">One Hour</span>
+                  </div>
+                  <br/>
+                  <div id="one-day"class="expiration-choices"style="align-items:center;display:flex;justify-content:space-between">
+                    <label class="container">
+                    <input type="radio"  name="radio" id="one-day-expire">
+                    <span class="checkmark"></span>
+                    </label>
+                    <div></div>
+                    <span style="text-align:left;width:170px">One Day</span>
+                  </div>
+                  <br/>
+                  <div id="one-week"class="expiration-choices"style="align-items:center;display:flex;justify-content:space-between">
+                    <label class="container">
+                    <input type="radio"  name="radio" id="one-week-expire">
+                    <span class="checkmark"></span>
+                    </label>
+                    <div></div>
+                    <span  style="text-align:left;width:170px">One Week</span>
+                  </div>
+                  <br/>
+                  <div id="one-month"class="expiration-choices"style="align-items:center;display:flex;justify-content:space-between">
+                    <label class="container">
+                    <input type="radio" checked="checked" name="radio" id="one-month-expire">
+                    <span class="checkmark"></span>
+                    </label>
+                    <div></div>
+                    <span style="text-align:left;width:170px">One Month</span>
+                  </div>
+                </div>
+                <br />
+                <div id="disable-reshare" style="align-items:center;display:flex;justify-content:space-between">
+                  <span>Disable Re-sharing</span>
+                  <label class="switch">
+                  <input type="checkbox" id="disable-reshare-toggle">
+                  <span class="slider round"></span>
+                  </label>
+                </div>
+                <br />
+                <div id="watermark"style="align-items:center;display:flex;justify-content:space-between">
+                  <span>Watermarking</span>
+                  <label class="switch">
+                  <input type="checkbox" id="watermark-toggle">
+                  <span class="slider round"></span>
+                  </label>
+                </div>
+                <br />
+              </div>
+            </div>
+            <!--Label, input box, & send button for email message body.  Hidden by default.-->
+            <div id="email-body-compose" style="display:none">
+              <label for="email-body" style ="font-family:raleway; text-align:center">
+                <div class="virtru-auth-instruction-sub">
+                  <strong>Personalized Message</strong><br/>
+                  <div style="font-size:75%">Include an optional, personalized message
+                    to your recipients.
+                  </div>
+                </div>
+              </label>
+              <textarea id="email-body" placeholder="Your personal message will not be encrypted." style="width:96%;text-align:left;font-size:85%;white-space:pre-wrap;height:80px;margin-top:5px" class="virtru-auth-input virtru-auth-input-email" rows="8"></textarea>
+              <br/>
+              <div >
+                <button class="virtru-auth-button virtru-auth-button-virtru" id="send-email" style="width:100%; text-align:center">Send</button>
+              </div>
+            </div>
+            <!--Download button.  Hidden by default.-->
+            <div id="download-button" style="display:none">
+              <button class="virtru-auth-button virtru-auth-button-virtru" id="do-download" style="width:100%; text-align:center">Download pdf.tdf3.html</button>
+            </div>
+          </div>
+        </div>
+        <div class="virtru-auth-footer"> 
+          <a class="virtru-auth-tos" href="https://www.virtru.com/terms-of-service/" target="_blank" style="font-size:.8em">Virtru Terms of Service</a>
+        </div>
+      </div>
+    </div>
+    <?!= include('JavaScript'); ?>
+  </body>
+</html>
