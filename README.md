@@ -7,4 +7,4 @@ Google Apps Script samples for the [Virtru Platform SDK](https://developer.virtr
 - [Virtru JS SDK](https://docs.developer.virtru.com/js/latest/)
 
 ## Samples
-- Link to project
+- [Google Doc Encrypt & Share](./virtru-encrypt-google-doc)
