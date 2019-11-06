@@ -1,5 +1,5 @@
 # Protect & Share Google Docs with the Virtru SDK
-An add-on for Google Docs adding the ability to encrypt & download or encrypt & email the contents of a Google Doc as a PDF, protected by Virtru.  Written in Google Apps Script leveraging the [Virtru SDK](https://developer.virtru.com).  
+An add-on for Google Docs adding the ability to encrypt & download or encrypt & email the contents of the document as an encrypted PDF, protected by Virtru.  Written in Google Apps Script leveraging the [Virtru SDK](https://developer.virtru.com).  
 
 ## Setup
 This is a self-contained project, so you can simply copy & paste the contents of each file into a new Google Apps Script project.  Make sure to keep the same file names, as these are referenced within the code.  
@@ -19,6 +19,8 @@ The included files are:
   - Provides the template for the email generated via the Encrypt & Email workflow.
 - [appsscript.json](./appsscript.json)
   - Manifest file.
+  
+Once code has been copied into a new project, hit Run > Test as Add-On to test.
   
 ## Usage
 Once deployed (or while testing) a new "Virtru Google Doc Protect & Share" option will be made available under the "Add-Ons" menu while viewing a Google Doc.  Selecting this option then "Start" will open the new Virtru sidebar.
