@@ -7,17 +7,17 @@ This is a self-contained project, so you can simply copy & paste the contents of
 This project follows [Google Apps Script HTML Service best practices](https://developers.google.com/apps-script/guides/html/best-practices) and externalizes client-side JS and CSS into their own files.  
 
 The included files are:
-- [Code.gs]
+- [Code.gs](./Code.gs)
   - Server-side code written in Google Apps Script.
-- [virtruSidebar.html]
+- [virtruSidebar.html](./virtruSidebar.html)
   - Main client-side code.  Generates the sidebar and provides a container for all client-side functions.
-- [JavaScript.html]
+- [JavaScript.html](./JavaScript.html)
   - Client-side JavaScript.  Is imported into and runs in the contenxt of virtruSidebar.html.
-- [Stylesheet.html]
+- [Stylesheet.html](./Stylesheet.html)
   - Styling for client-side code.
-- [emailHTML.html]
+- [emailHTML.html](./emailHTML.html)
   - Provides the template for the email generated via the Encrypt & Email workflow.
-- [appsscript.json]
+- [appsscript.json](./appsscript.json)
   - Manifest file.
   
 ## Usage
