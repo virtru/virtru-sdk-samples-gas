@@ -4,7 +4,7 @@ An add-on for Google Docs adding the ability to encrypt & download or encrypt & 
 ![](https://miro.medium.com/max/1280/1*Bw1zo_S0C-M9ambD7s1pRg.gif)
 
 ## Setup
-This is a self-contained project, so you can simply copy & paste the contents of each file into a new Google Apps Script project.  Make sure to keep the same file names, as these are referenced within the code.  
+This is a self-contained project, so you can simply copy & paste the contents of each file into a new Google Apps Script project.  Make sure to keep the same file names, as these are referenced within the code.  Alternatively, download the full project, edit locally, and push to Google Apps Script with [Clasp](https://developers.google.com/apps-script/guides/clasp).
 
 This project follows [Google Apps Script HTML Service best practices](https://developers.google.com/apps-script/guides/html/best-practices) and externalizes client-side JS and CSS into their own files.  
 
