@@ -8,3 +8,10 @@ Google Apps Script samples for the [Virtru Platform SDK](https://developer.virtr
 
 ## Samples
 - [Google Doc Encrypt & Share](./virtru-encrypt-google-doc)
+
+## License
+Copyright © 2019 Virtru Corporation
+
+This repository is released under the MIT license for all artifacts in this repository, with the following exceptions which are subject to our [Virtru Data Protection Platform Subscription Agreement](https://www.virtru.com/terms-of-service/):
+
+- virtru-sdk
